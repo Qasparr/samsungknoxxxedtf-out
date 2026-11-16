@@ -1,0 +1,11 @@
+# This repository carries paper and scripts — never images, keys, or ISOs.
+*.iso
+*.vhdx
+*.avhdx
+*.wim
+*.swm
+*.img
+*.zip
+/secrets/
+*.key
+*.pem
