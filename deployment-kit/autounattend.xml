@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ==========================================================================
+  AUTOUNATTEND — the birth certificate of an Enclave workstation
+  ==========================================================================
+  "Do what thou wilt shall be the whole of the Law."
+    An attended install is a negotiation conducted at a keyboard, one
+    prompt at a time, and negotiations of that shape are lost by
+    inches. This file moves the negotiation to paper, where this
+    house does its thinking (Bootstrap §II).
+
+  Authorship attributed exclusively to Johnathan "Qasparr" Monroe
+  (Greek, -ARR, All Rights Reserved, Without Prejudice).
+  XVI day of November, Dies Lunae, Sol in Scorpio, Anno V:xii e.n.
+  (2026 e.v.). Method of Science, Aim of Religion. 93.
+
+  WHAT THIS FILE RULES, AND ITS SOURCES:
+    * Architecture ARM64; the image installed is selected BY NAME as
+      "Windows 11 Pro for Workstations" (Bootstrap §II.2). MEDIA GATE:
+      if the verified image in hand carries the edition under another
+      name or index, verify with DISM /Get-WimInfo against the actual
+      media and correct the /IMAGE/NAME value below before building —
+      the answer file selects the edition the media PROVES it holds,
+      never the edition a memory insists on.
+    * ONE local administrator, and no Microsoft account at any point;
+      the OOBE account and network gates are suppressed in the file
+      itself (Bootstrap §II.1). This house's machines do not phone
+      home to be born.
+    * NO CREDENTIAL STANDS IN THIS FILE. The local account is created
+      without a password value by design: a password written into an
+      answer file is a password published to everyone who ever reads
+      the media. The operator sets the account's password at first
+      logon, in person, before the machine is trusted — and the
+      BitLocker recovery protector is struck in that same first
+      session (Bootstrap §II.4 / §IV), its material printed and held
+      offline under the founder's hand, never escrowed to a vendor.
+    * Locale en-US, time zone America/Detroit (named here in the
+      Windows form "Eastern Standard Time", which is Detroit's seat).
+    * The disk layout follows Draft §IV and Bootstrap §II.3, sized
+      for iron of 1 TiB or more; on smaller iron Windows Setup fails
+      rather than improvising — fail-closed is the correct behaviour,
+      and the operator re-sizes this file deliberately, on paper.
+  ==========================================================================
+-->
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+
+  <!-- ============================ windowsPE ============================ -->
+  <settings pass="windowsPE">
+
+    <!-- Locale for Setup itself and for the image being laid down. -->
+    <component name="Microsoft-Windows-International-Core-WinPE"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+      <SetupUILanguage>
+        <UILanguage>en-US</UILanguage>
+      </SetupUILanguage>
+      <InputLocale>en-US</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+
+    <component name="Microsoft-Windows-Setup"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+
+      <!--
+        THE DISK, per Draft §IV / Bootstrap §II.3 (GPT, UEFI iron):
+          P1 SYSTEM       260 MiB  FAT32   the EFI seat
+          P2 (MSR)         16 MiB  —       Microsoft reserved
+          P3 WINDOWS      300 GiB  NTFS    the Windows seat (install target)
+          P4 BRIDGE        64 GiB  exFAT   the corridor both boots read
+                                           (Portability Law, Amendment VIII)
+          P5 POOLRESERVE  512 GiB  RAW     reserved unformatted at birth;
+                                           the pooled-storage ceremony of
+                                           Bootstrap §III.3 takes it up
+                                           post-install. The ReFS EXPANSION
+                                           seat (Amendment VII) governs the
+                                           pool volumes struck there; no
+                                           volume is laid down in ReFS by
+                                           this file.
+          P6 (reserve)    rest     RAW     the second boot's ground
+                                           (Ubuntu, the root host), reserved,
+                                           unformatted, and UNTOUCHED by this
+                                           bootstrap: Windows is installed
+                                           first for the TPM's sake, not
+                                           because it owns the disk.
+      -->
+      <DiskConfiguration>
+        <WillShowUI>OnError</WillShowUI>
+        <Disk wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+          <DiskID>0</DiskID>
+          <WillWipeDisk>true</WillWipeDisk>
+          <CreatePartitions>
+            <CreatePartition wcm:action="add">
+              <Order>1</Order><Type>EFI</Type><Size>260</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Order>2</Order><Type>MSR</Type><Size>16</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Order>3</Order><Type>Primary</Type><Size>307200</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Order>4</Order><Type>Primary</Type><Size>65536</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Order>5</Order><Type>Primary</Type><Size>524288</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Order>6</Order><Type>Primary</Type><Extend>true</Extend>
+            </CreatePartition>
+          </CreatePartitions>
+          <ModifyPartitions>
+            <ModifyPartition wcm:action="add">
+              <Order>1</Order><PartitionID>1</PartitionID>
+              <Format>FAT32</Format><Label>SYSTEM</Label>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>2</Order><PartitionID>2</PartitionID>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>3</Order><PartitionID>3</PartitionID>
+              <Format>NTFS</Format><Label>WINDOWS</Label><Letter>C</Letter>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>4</Order><PartitionID>4</PartitionID>
+              <Format>exFAT</Format><Label>BRIDGE</Label><Letter>D</Letter>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>5</Order><PartitionID>5</PartitionID>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>6</Order><PartitionID>6</PartitionID>
+            </ModifyPartition>
+          </ModifyPartitions>
+        </Disk>
+      </DiskConfiguration>
+
+      <!-- The edition, selected by the name the verified image proves. -->
+      <ImageInstall>
+        <OSImage>
+          <InstallFrom>
+            <MetaData wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+              <Key>/IMAGE/NAME</Key>
+              <Value>Windows 11 Pro for Workstations</Value>
+            </MetaData>
+          </InstallFrom>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>3</PartitionID>
+          </InstallTo>
+          <WillShowUI>OnError</WillShowUI>
+        </OSImage>
+      </ImageInstall>
+
+      <!-- No product key stands in this file. The operator's lawful key
+           is entered post-install, in person (Bootstrap §I/§II law:
+           credentials are never carried on birth media). -->
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+        <FullName>Johnathan Monroe</FullName>
+      </UserData>
+    </component>
+  </settings>
+
+  <!-- ============================ specialize =========================== -->
+  <settings pass="specialize">
+    <component name="Microsoft-Windows-International-Core"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+      <InputLocale>en-US</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+      <ComputerName>ENCLAVE-WS1</ComputerName>
+      <!-- Windows names Detroit's zone "Eastern Standard Time". -->
+      <TimeZone>Eastern Standard Time</TimeZone>
+      <RegisteredOwner>Johnathan 'Qasparr' Monroe</RegisteredOwner>
+    </component>
+  </settings>
+
+  <!-- ============================ oobeSystem =========================== -->
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-International-Core"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+      <InputLocale>en-US</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="arm64" publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS">
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <!-- The account gates, refused in the file itself: no online
+             account is offered, and no wireless courtship delays a
+             birth this house has already negotiated on paper. -->
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Home</NetworkLocation>
+        <ProtectYourPC>3</ProtectYourPC>
+      </OOBE>
+
+      <!-- ONE local administrator. No Password element stands here —
+           see the header: credentials are never carried on media.
+           The operator sets the password at first logon, in person. -->
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+            <Name>Qasparr</Name>
+            <DisplayName>Johnathan 'Qasparr' Monroe</DisplayName>
+            <Group>Administrators</Group>
+            <Description>The founder's local administrator — the only account this file creates.</Description>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+
+      <!-- First logon: the TPM is sealed before any other configuration
+           (Bootstrap §II.4 — Windows first wakes the TPM). This command
+           strikes the TPM protector; the RECOVERY protector is struck
+           by the operator in the same session and its material held
+           offline (Bootstrap §II.4/§IV) — deliberately NOT automated
+           here, because an automated recovery key is a written-down
+           recovery key, and this file is read by the media it rides. -->
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+          <Order>1</Order>
+          <CommandLine>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -TpmProtector"</CommandLine>
+          <Description>Seal BitLocker to the TPM (Bootstrap §II.4). Then, in this same session: set the account password and strike the BitLocker recovery protector to offline keeping.</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+    </component>
+  </settings>
+
+  <!--
+    ==========================================================================
+    Inputs:  the verified Windows 11 ARM64 image (Bootstrap §I).
+    Processes: windowsPE lays the disk and the edition; specialize
+      names and times the machine; oobeSystem births exactly one
+      local administrator and seals BitLocker to the TPM.
+    Outputs: a workstation born local, measured, and encrypted —
+      no vendor account, no credential on media, the pool ground
+      reserved and the second boot's ground untouched.
+    Tolerances: edition selection is by the name the media PROVES;
+      the layout is sized for iron of 1 TiB or more and fails
+      closed on smaller iron rather than improvising.
+    93 — Live, Love, and let Love, Live.
+    ==========================================================================
+  -->
+</unattend>
