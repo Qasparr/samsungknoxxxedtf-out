@@ -1,0 +1,91 @@
+#version 310 es
+// ============================================================================
+// PARALLEL_SUM — the fan-in: a workgroup tree reduction over an SSBO
+// ----------------------------------------------------------------------------
+// "Do what thou wilt shall be the whole of the Law."
+//   A sum is the first honest question you can ask a GPU: every lane
+//   brings one number, the tree folds them, and the answer either
+//   equals the count or the machine has told you something is wrong.
+//   The Enclave's nodes and Resonantia's bench both need reductions
+//   they can swear to; this shader is that reduction, kept small
+//   enough to audit at a glance.
+//
+// Authorship attributed exclusively to Johnathan "Qasparr" Monroe
+// (Greek, -ARR, All Rights Reserved, Without Prejudice).
+// XVI day of November, Dies Lunae, Sol in Scorpio, Anno V:xii e.n.
+// (2026 e.v.). Method of Science, Aim of Religion. 93.
+//
+// MECHANISM —
+//   One workgroup of 256 lanes owns one 256-element chunk of the
+//   input. Each lane loads its element (zero past the end of the
+//   input, so a ragged tail sums exactly), the chunk folds in shared
+//   memory by halving strides — 128, 64, 32, 16, 8, 4, 2, 1 — with a
+//   barrier at every stride, and lane 0 writes the chunk's partial
+//   sum to the partials buffer. The host sums the partials (at most
+//   count/256 of them) to finish: the GPU does the fan-in, the host
+//   does the last handful of adds, and the division of labour is
+//   printed in the host program's own output, not hidden.
+//
+//   The barrier stands OUTSIDE the lane-conditional on purpose:
+//   barrier() is only defined when all lanes of the workgroup reach
+//   it; the stride is uniform across the workgroup, so every lane
+//   arrives, and only the add is conditional. A barrier inside the
+//   `if (tid < s)` would be undefined behaviour on exactly the
+//   hardware this toolbox serves.
+//
+// DOCTRINE —
+//   The workgroup size, 256, is a compile-time seat, not a discovered
+//   one: caps-probe prints the device's maxComputeWorkGroupSize, and
+//   256 sits inside every Valhall limit the house has seen. If a
+//   future device answers smaller, this constant — not the algorithm
+//   — is what moves.
+//
+//   A NOTE ON THE SHAPE OF THIS FILE: in the GLSL ES profile the
+//   #version statement must be the first statement in the file —
+//   comments before it are a compile error, as this toolbox's own
+//   bench proved on its first run (glslc, T4). The header therefore
+//   stands below the version line instead of above it. The law of
+//   the language outranks the custom of the house, and the record
+//   says why the custom bent.
+// ============================================================================
+
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) readonly buffer InputBuffer {
+    float data_in[];
+};
+
+layout(std430, binding = 1) writeonly buffer PartialBuffer {
+    float partials[];
+};
+
+layout(push_constant) uniform PushConstants {
+    uint count;   // total elements in data_in; the tail reads as zero
+} push;
+
+shared float scratch[256];
+
+void main() {
+    uint tid = gl_LocalInvocationID.x;
+    uint gid = gl_GlobalInvocationID.x;
+
+    scratch[tid] = (gid < push.count) ? data_in[gid] : 0.0;
+    barrier();
+    memoryBarrierShared();
+
+    for (uint s = 128u; s > 0u; s >>= 1u) {
+        if (tid < s) {
+            scratch[tid] += scratch[tid + s];
+        }
+        barrier();
+        memoryBarrierShared();
+    }
+
+    if (tid == 0u) {
+        partials[gl_WorkGroupID.x] = scratch[0];
+    }
+}
+
+// ============================================================================
+// 93 — Live, Love, and let Love, Live.
+// ============================================================================

@@ -1,0 +1,6 @@
+# The toolchain is fetched, never committed (setup/fetch-toolchain.sh).
+vendor/
+# Build output and struck binaries.
+build/
+# Compiled shaders are build products; the .comp sources are the record.
+*.spv

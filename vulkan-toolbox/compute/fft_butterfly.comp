@@ -1,0 +1,93 @@
+#version 310 es
+// ============================================================================
+// FFT_BUTTERFLY — one stage of a radix-2 Cooley–Tukey FFT, in place
+// ----------------------------------------------------------------------------
+// "Do what thou wilt shall be the whole of the Law."
+//   The spectrum is Resonantia's native country — every tuning table
+//   the house keeps is a claim about frequencies — and the Enclave's
+//   signal work stands on the same ground. A Fourier transform the
+//   house can run on the phone's own GPU, one stage per dispatch,
+//   each stage auditable in isolation: that is what this shader is.
+//
+// Authorship attributed exclusively to Johnathan "Qasparr" Monroe
+// (Greek, -ARR, All Rights Reserved, Without Prejudice).
+// XVI day of November, Dies Lunae, Sol in Scorpio, Anno V:xii e.n.
+// (2026 e.v.). Method of Science, Aim of Religion. 93.
+//
+// MECHANISM —
+//   The transform is decimation-in-time over n = 2^k complex samples
+//   held as vec2 (x = real, y = imaginary) in one storage buffer.
+//   The HOST performs the bit-reversal permutation once, up front;
+//   then log2(n) dispatches of this shader walk the stages. At stage
+//   s the butterfly span is 2^s: blocks of 2^(s+1) samples pair lane
+//   i0 with i1 = i0 + span, the twiddle factor for lane j within the
+//   block is exp(direction * 2πi * j / block), and the butterfly is
+//       data[i0] = a + w·b
+//       data[i1] = a − w·b
+//   One invocation owns exactly one butterfly; there are n/2 of them
+//   per stage, and invocations past n/2 return at the gate. Because
+//   each butterfly touches a disjoint pair, no barrier and no shared
+//   memory are needed — the stage is embarrassingly parallel, which
+//   is precisely why it suits a two-core Mali.
+//
+//   direction = −1 runs the forward transform (the signal-analysis
+//   convention); +1 runs the inverse's butterfly, and the host owes
+//   the 1/n scaling on the inverse — the shader does not hide a
+//   normalisation inside a stage, because a stage that secretly
+//   scales is a stage that cannot be audited alone.
+//
+// DOCTRINE —
+//   Power-of-two lengths only. Non-power-of-two work (Bluestein,
+//   mixed-radix) is a different instrument and will be built as one,
+//   not smuggled into this file. Precision is fp32 throughout: on
+//   the Mali-G68 that is the honest seat; an fp64 path does not
+//   exist on this GPU and none is pretended.
+//
+//   (The #version line stands first in this file because the GLSL
+//   ES profile requires it there — comments before it are a compile
+//   error. See parallel_sum.comp for the bench record of that law.)
+// ============================================================================
+
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer DataBuffer {
+    vec2 data[];   // complex samples: x = real, y = imaginary
+};
+
+layout(push_constant) uniform PushConstants {
+    uint n;          // total samples; a power of two
+    uint stage;      // 0 .. log2(n)-1; butterfly span is 1 << stage
+    int  direction;  // -1 forward, +1 inverse (host scales by 1/n)
+} push;
+
+const float PI = 3.14159265358979323846;
+
+void main() {
+    uint span  = 1u << push.stage;   // half the block
+    uint block = span << 1u;         // the full butterfly block
+    uint idx   = gl_GlobalInvocationID.x;
+
+    if (idx >= push.n / 2u) {
+        return;                      // one invocation per butterfly
+    }
+
+    uint block_id = idx / span;
+    uint lane     = idx % span;
+    uint i0       = block_id * block + lane;
+    uint i1       = i0 + span;
+
+    float ang = float(push.direction) * 2.0 * PI * float(lane) / float(block);
+    vec2 w = vec2(cos(ang), sin(ang));
+
+    vec2 a = data[i0];
+    vec2 b = data[i1];
+    vec2 wb = vec2(b.x * w.x - b.y * w.y,
+                   b.x * w.y + b.y * w.x);
+
+    data[i0] = a + wb;
+    data[i1] = a - wb;
+}
+
+// ============================================================================
+// 93 — Live, Love, and let Love, Live.
+// ============================================================================
