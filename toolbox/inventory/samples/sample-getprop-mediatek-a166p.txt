@@ -1,0 +1,19 @@
+# SAMPLE — FABRICATED TEST INPUT. This is NOT a dump from any real
+# device. The identifiers that carry weight (model SM-A166P, device
+# a16xm, SoC MediaTek Dimensity 6300) are the recorded values for
+# the MediaTek Galaxy A16 5G line; the build numbers are
+# placeholders struck for the tests and say so in their own text
+# (SAMPLE). Note what this sample exists to prove: the codename
+# 'a16xm' begins with 'a16x' and must still rule MEDIATEK — the
+# prefix trap, pinned in a test.
+[ro.product.model]: [SM-A166P]
+[ro.product.device]: [a16xm]
+[ro.product.brand]: [samsung]
+[ro.product.manufacturer]: [samsung]
+[ro.soc.manufacturer]: [MediaTek]
+[ro.soc.model]: [Dimensity 6300]
+[ro.build.fingerprint]: [samsung/a16xmxx/a16xm:14/SAMPLE.240101.001/A166PSQSAMPLE:user/release-keys]
+[ro.build.id]: [SAMPLE.240101.001]
+[ro.build.version.release]: [14]
+[ro.build.version.security_patch]: [2024-01-05]
+[ro.bootloader]: [A166PSQSAMPLE]

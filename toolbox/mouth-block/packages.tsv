@@ -1,0 +1,60 @@
+# =====================================================================
+# THE MOUTH-BLOCK MANIFEST — the Samsung consumer surfaces, as data.
+#
+# XVI day of November, Dies Lunae, Sol in Scorpio, Anno V:xii e.n.
+# (2026 e.v.) — the isolation ordered the same day: "block the
+# mouth, not the Vault."
+#
+# Authorship attributed exclusively to Johnathan 'Qasparr' Monroe
+# (Greek, -ARR, All Rights Reserved, Without Prejudice).
+#
+# COLUMNS (tab-separated): package | tier | action | note
+#   tier    default — in the ordered mouth-block set
+#           review  — data-bearing or possibly wanted; only with
+#                     the founder's explicit --include-review
+#           never   — NEVER TOUCH. Not a pm target at all: HALs,
+#                     daemons, and the security stack, listed so
+#                     the scripts can REFUSE them by name.
+#   action  disable-user — mouth-block.sh may generate its
+#                     disable/enable pair
+#           audit-only   — permission-audit.sh reads it; nothing
+#                     here ever changes it
+#           never        — no script in this kit touches it
+#
+# DOCTRINE: presence on a given unit is proven by the inventory /
+# audit run, not by this file — the scripts skip absent packages
+# and log the skip. Package names are Samsung's published package
+# identities for these surfaces; where a unit's build names a
+# surface differently, the audit shows the truth and this manifest
+# is amended from evidence, never from habit.
+# =====================================================================
+# --- tier: default — promotion, push, and chatter surfaces ---------
+com.sec.android.app.samsungapps	default	disable-user	Galaxy Store — the storefront and its promotion surface
+com.sec.spp.push	default	disable-user	Samsung Push Service — vendor push channel
+com.samsung.android.app.spage	default	disable-user	Samsung Free — the content-promotion feed
+com.samsung.android.rubin.app	default	disable-user	Customization Service — personalised content and ad analytics
+com.samsung.android.app.tips	default	disable-user	Tips — the marketing/help surface
+com.samsung.android.voc	default	disable-user	Samsung Members — promotion and community surface
+# --- tier: default — the Bixby surfaces ----------------------------
+com.samsung.android.bixby.agent	default	disable-user	Bixby Voice agent
+com.samsung.android.visionintelligence	default	disable-user	Bixby Vision
+# --- tier: default — game marketing surfaces -----------------------
+com.samsung.android.game.gamehome	default	disable-user	Gaming Hub / Game Launcher — storefront and promotion
+# --- tier: review — data-bearing or possibly wanted ----------------
+com.samsung.android.app.routines	review	disable-user	Bixby Routines — automations the founder may himself use; review before any block
+com.samsung.android.game.gametools	review	disable-user	Game Booster — performance tooling, not only marketing; review
+com.samsung.android.scloud	review	disable-user	Samsung Cloud — a cloud hook WITH founder data behind it; export first, then decide
+com.samsung.android.samsungpass	review	audit-only	Samsung Pass — a credential store; blocking it locks saved sign-ins away. Audit only, by the desk's advice
+com.sec.android.app.shealth	review	audit-only	Samsung Health — health data lives here; audit only
+com.samsung.android.lool	review	audit-only	Device Care — battery and device maintenance the unit relies on; audit only, the desk's advice is keep
+# --- tier: never — the stack the Vault doctrine protects -----------
+android.hardware.security.keymint	never	never	KeyMint HAL — the hardware key store's root. NEVER TOUCH
+keystore2	never	never	keystore2 — the Keystore daemon itself. NEVER TOUCH
+android.hardware.gatekeeper	never	never	Gatekeeper HAL — credential verification. NEVER TOUCH
+android.hardware.weaver	never	never	Weaver HAL — throttled credential slots. NEVER TOUCH
+teegris	never	never	TEEGRIS — the Exynos TEE operating system and its stack. NEVER TOUCH
+com.samsung.android.knox	never	never	The Knox platform packages (prefix as named on the unit) — the Vault's own house. NEVER TOUCH
+com.android.phone	never	never	Telephony — radio/baseband's user-space face. NEVER TOUCH
+com.shannon.imsservice	never	never	IMS service (as named on Exynos builds) — radio/baseband. NEVER TOUCH
+android.hardware.graphics	never	never	Display/graphics HALs (prefix as named) — the display stack. NEVER TOUCH
+android.hardware.boot	never	never	Boot/storage HALs (prefix as named) — the storage stack. NEVER TOUCH

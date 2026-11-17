@@ -1,0 +1,20 @@
+# SAMPLE — FABRICATED TEST INPUT. This is NOT a dump from any real
+# device. The identifiers that carry weight (model SM-A166U, device
+# a16x, board/hardware s5e8535, SoC Exynos 1330) are the recorded
+# values for the Exynos 1330 Galaxy A16 5G line; the build numbers
+# and incremental strings are placeholders struck for the tests and
+# say so in their own text (SAMPLE). The parser tests feed on this
+# file; nothing here attests anything about any living phone.
+[ro.product.model]: [SM-A166U]
+[ro.product.device]: [a16x]
+[ro.product.brand]: [samsung]
+[ro.product.manufacturer]: [samsung]
+[ro.board.platform]: [s5e8535]
+[ro.hardware]: [s5e8535]
+[ro.soc.manufacturer]: [Samsung]
+[ro.soc.model]: [Exynos 1330]
+[ro.build.fingerprint]: [samsung/a16xsq/a16x:14/SAMPLE.240101.001/A166USQSAMPLE:user/release-keys]
+[ro.build.id]: [SAMPLE.240101.001]
+[ro.build.version.release]: [14]
+[ro.build.version.security_patch]: [2024-01-05]
+[ro.bootloader]: [A166USQSAMPLE]
