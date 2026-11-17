@@ -1,0 +1,6 @@
+# Samsung's SDK archives stand in the seat but are NEVER committed:
+# they are Samsung's property, distributed under Samsung's license
+# through the founder's own Knox Partner Program account.
+vendor/
+# Build output: compiled classes and the struck JNI library.
+build/
